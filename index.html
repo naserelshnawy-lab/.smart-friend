@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>الصديق الذكي</title>
+<style>
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#101c32;
+  color:white;
+}
+header {
+  padding:20px;
+  background:#192c49;
+  text-align:center;
+  font-size:24px;
+  font-weight:bold;
+}
+small {color:#7ee3b2;font-size:13px}
+#chat {
+  height:calc(100dvh - 175px);
+  overflow-y:auto;
+  padding:20px;
+}
+.msg {
+  padding:14px;
+  border-radius:18px;
+  margin:12px 0;
+  max-width:85%;
+  line-height:1.8;
+  overflow-wrap:anywhere;
+}
+.bot {background:#293e5e;margin-left:auto}
+.user {background:#1769aa;margin-right:auto}
+footer {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#192c49;
+  padding:15px;
+  display:flex;
+  gap:8px;
+}
+input {
+  flex:1;
+  min-width:0;
+  border:0;
+  border-radius:25px;
+  padding:12px;
+  font-size:16px;
+}
+button {
+  border:0;
+  border-radius:50%;
+  background:#2879c7;
+  color:white;
+  padding:12px;
+  cursor:pointer;
+}
+</style>
+</head>
+<body>
+
+<header>
+🤖 الصديق الذكي
+<br><small>● صديقك العربي</small>
+</header>
+
+<div id="chat">
+  <div class="msg bot">
+    أهلاً بيك يا صديقي ❤️
+    <br>أنا هنا أساعدك.
+  </div>
+</div>
+
+<footer>
+  <button onclick="listen()" title="الميكروفون">🎤</button>
+  <input id="question" placeholder="اكتب رسالتك...">
+  <button onclick="send()">➤</button>
+  <button onclick="speak()" title="استمع للرد">🔊</button>
+</footer>
+
+<script>
+let lastReply = "";
+
+function addMessage(text, type) {
+  const div = document.createElement("div");
+  div.className = "msg " + type;
+  div.textContent = text;
+  document.getElementById("chat").appendChild(div);
+  div.scrollIntoView({behavior:"smooth"});
+}
+
+function send() {
+  const input = document.getElementById("question");
+  const question = input.value.trim();
+  if (!question) return;
+
+  addMessage(question, "user");
+  input.value = "";
+
+  let reply = "أنا لسه بتعلم يا صديقي ❤️";
+
+  if (question.includes("اسمك")) {
+    reply = "أنا الصديق الذكي، صاحبك العربي 🤖";
+  } else if (question.includes("ازيك") ||
+             question.includes("إزيك")) {
+    reply = "الحمد لله يا صديقي! إنت عامل إيه؟ ❤️";
+  } else if (question.includes("برمجة")) {
+    reply = "نقدر نتعلم البرمجة مع بعض خطوة بخطوة!";
+  }
+
+  lastReply = reply;
+  addMessage(reply, "bot");
+}
+
+function speak() {
+  if (!lastReply) {
+    alert("اكتب سؤال الأول يا صديقي");
+    return;
+  }
+  if (!("speechSynthesis" in window)) {
+    alert("المتصفح لا يدعم قراءة الصوت");
+    return;
+  }
+  speechSynthesis.cancel();
+  const voice = new SpeechSynthesisUtterance(lastReply);
+  voice.lang = "ar-EG";
+  voice.rate = 0.9;
+  speechSynthesis.speak(voice);
+}
+
+function listen() {
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    alert("الميكروفون غير مدعوم في المتصفح ده");
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+  recognition.lang = "ar-EG";
+  recognition.onresult = function(event) {
+    document.getElementById("question").value =
+      event.results[0][0].transcript;
+  };
+  recognition.onerror = function(event) {
+    alert("تعذر التعرف على الصوت: " + event.error);
+  };
+  recognition.start();
+}
+</script>
+</body>
+</html>
